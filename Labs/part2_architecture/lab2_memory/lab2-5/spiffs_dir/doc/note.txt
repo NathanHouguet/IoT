@@ -1,0 +1,1 @@
+This lab illustrates the capability to integrate in the SPI FLASH FILE SYSTEM (SPIFFS) some files.
