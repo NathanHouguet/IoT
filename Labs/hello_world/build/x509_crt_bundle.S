@@ -1,4 +1,4 @@
-/* * Data converted from /home/houguet/esp/IoT/hello_world/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /home/houguet/esp/IoT/Labs/hello_world/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

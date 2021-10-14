@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/houguet/esp/IoT/hello_world/build/esp-idf/mbedtls/mbedtls/cmake_install.cmake")
+  include("/home/houguet/esp/IoT/Labs/hello_world/build/esp-idf/mbedtls/mbedtls/cmake_install.cmake")
 
 endif()
 

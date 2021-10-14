@@ -1,4 +1,4 @@
-# Install script for directory: /home/houguet/esp/IoT/hello_world/main
+# Install script for directory: /home/houguet/esp/IoT/Labs/hello_world/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
