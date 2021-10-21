@@ -36,9 +36,26 @@ static volatile uint32_t count=0;
  */
 static void IRAM_ATTR gpio_switch_isr_handler(void *args) {
 	
-    int pinLedNumber = (int)args;
+    //Wait to avoid bounce
+    usleep(100);
+
+    //Disable the isr 
+    gpio_intr_disable(PIN_PUSH_BUTTON);
+
+    // Waiting for signal is 1 again
+  do {
+  ets_delay_us (1000) ;
+  } while ( gpio_get_level ( PIN_PUSH_BUTTON ) == 1) ;
+  // Previous code
+  int pinLedNumber = ( int ) args ;
+  count ++;
+  gpio_set_level ( pinLedNumber , ( count % 2) ) ;
+  // re - enable the interrupt
+  gpio_intr_enable ( PIN_PUSH_BUTTON ) ;
+
+    /*int pinLedNumber = (int)args;
     count++;
-    gpio_set_level(pinLedNumber, (count % 2));
+    gpio_set_level(pinLedNumber, (count % 2));*/
 	
 }
 
@@ -58,7 +75,7 @@ void app_main(void) {
 
   /* GPIO INPUT */
   gpio_config_t config_in;
-  config_in.intr_type = GPIO_INTR_DISABLE;
+  config_in.intr_type = GPIO_INTR_POSEDGE;
   config_in.mode = GPIO_MODE_INPUT;
   config_in.pull_down_en = GPIO_PULLDOWN_DISABLE;
   config_in.pull_up_en = GPIO_PULLUP_ENABLE;

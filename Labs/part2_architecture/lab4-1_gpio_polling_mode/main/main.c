@@ -56,7 +56,7 @@ void app_main(void) {
   uint32_t previous_count=-1;
 
   while (true) {
-      for (int i=0; i<5; i++) {
+      for (int i=0; i<5; i++) {Houguet
         buttonState = gpio_get_level(PIN_PUSH_BUTTON);
         if (buttonState == 0) {
           while (gpio_get_level(PIN_PUSH_BUTTON) == 0) {
