@@ -1,0 +1,33 @@
+############################################################################
+# Copyright (C) 2020 by Fabrice Muller                                     #
+#                                                                          #
+# This file is useful for ESP32 Design course.                             #
+#                                                                          #
+############################################################################
+
+menu "My Custom Menu"
+
+config CUSTOM_FUNCTIONS
+    bool "select for customSensorSet"
+    default "n"
+
+config INFORMATION_TITLE
+    string "Write the title"
+    default "My Title"
+    help "help ! Hello"
+
+config GENERATE_RANDOM_VALUE
+    bool
+    choice
+    	prompt "select a choice to generate random values"
+    	default ABS_RANDOM
+
+        config CONSTANT
+            bool "Use constant: 2000"
+        config ABS_RANDOM
+            bool "abs(random())"
+        config ONLY_RANDOM
+            bool "random()"
+    endchoice    
+
+endmenu
