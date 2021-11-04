@@ -30,10 +30,15 @@
 
 #include "my_helper_fct.h"
 
-static const char* TAG = "MsgQ";
+/* Define the received Value to print */
+int ReceivedValue;
 
-//Define the priorities
-#define vCounterTask_PRIO = //TODO
+
+/* Default stack size for tasks */
+static const uint32_t STACK_SIZE = 4000;
+
+/* Define the priority */
+static const uint32_t vCounterTask_PRIO = 2;
 
 // Push button for interrupt: RTC_GPIO_13
 static const gpio_num_t PIN_PUSH_BUTTON = 15;
@@ -41,118 +46,85 @@ static const gpio_num_t PIN_PUSH_BUTTON = 15;
 /* Stack size for all tasks */
 const uint32_t TASK_STACK_SIZE = 4096;
 volatile uint32_t isrCount; 
+uint32_t Count;
 
 /* Create the Queue */
 QueueHandle_t xQueue1 = NULL;
 
-void app_main(void) {
+static void IRAM_ATTR push_button_isr_handler(void *args) {
 
- 	/* GPIO INPUT */
-  	gpio_config_t config_in;
-  	config_in.intr_type = GPIO_PIN_INTR_NEGEDGE;
-  	config_in.mode = GPIO_MODE_INPUT;
-  	config_in.pull_down_en = GPIO_PULLDOWN_DISABLE;
-  	config_in.pull_up_en = GPIO_PULLUP_ENABLE;
-  	config_in.pin_bit_mask = (1ULL << PIN_PUSH_BUTTON);
-  	gpio_config(&config_in);
-
-	gpio_install_isr_service(0);
-	gpio_isr_handler_add(PIN_PUSH_BUTTON, gpio_switch_isr_handler, //ADD THE QUEUE REF);
-
-	/* Create Message Queue and Check if created */
-	xQueue1 = xQueueCreate(5, sizeof(uint32_t *));
-
-	if ( xQueue1 == NULL)
-	DISPLAYR ("Fail to create the Queue");
-
-
-	/* Create vCounterTask task */
-	vTaskSuspendAll ();
-	xTaskCreatePinnedToCore(vCounterTask,	"vCounterTask", STACK_SIZE,	(void*)"vCounterTask", vCounterTask_PRIO,	NULL,CORE_1);
-	xTaskResumeAll ();				
-
-	/* Install ISR */
-	//TODO
-
-	/* to ensure its exit is clean */
-	vTaskDelete(NULL);
-}
-
-void vCounterTask(void *pvParameters) {
-
-	for (;; ) {
-
-		/* Wait for message with 5 sec. otherwise DISPLAY a message to push it */
-		
-		/* If pushed */
-		
-			// DISPLAY "Button pushed" and the isrCount variable
-		
-			// Get the number of items in the queue
-			
-			// DISPLAYI (Information display) number of items if greater than 1
-		
-			// Waiting for push button signal is 1 again (test every 20 ms)
-			
-			// DISPLAY "Button released"
-		
-		/* Else If Time out */
-		
-			// Display message "Please, push the button!"
-
-/*static const char * TAG = " MsgTimeOut " ;
-int32_t ReceivedValue;
-char *pcTaskName;
-pcTaskName = (char *)pvParameters;
-
-DISPLAY("Start of %s task, priority = %d",pcTaskName, uxTaskPriorityGet(NULL));
-
-for(;;){
-	if ( xQueueReceive (xQueue1,&ReceivedValue,pdMS_TO_TICKS (300)) ) {
-	DISPLAY("Run computation of %s", pcTaskName);
-	DISPLAYI (TAG, "Task 2,mess = %d", ReceivedValue ) ;
-	COMPUTE_IN_TICK (3) ;
-	DISPLAY("End of %s", pcTaskName);
-	}
-	else {
-	DISPLAYE (TAG, "Task 2, Timeout !") ;
-	COMPUTE_IN_TICK (1) ;
-	}
-}
-		
-	}*/
-}
-
-
-static void IRAM_ATTR Push_button_isr_handler(void *args) {
-
-	int32_t SentValue;
+	int SentValue;
 
 	//Assign a value to send
 	SentValue = 50; 
 	
 
 	// Increment isrCount
+	isrCount++;
 	//Wait to avoid bounce
     usleep(100);
-	isrCount++;
   	
 	
 	// Send message
-	for(;;){
 	if( xQueue1 == NULL){
 
-	DISPLAY("Fail to create the queue");
 
 	}else{
 	// Post and Check result
-	if (xQueueSend (xQueue1, &SentValue, 0) == pdTRUE){
-	DISPLAYY("MESSAGE SENT");
+	if (xQueueSendFromISR (xQueue1, &SentValue, 0) == pdTRUE){
 	}
 
 }
 
 }
 
+void vCounterTask(void *pvParameters) {
+
+	for(;;){
+		if ( xQueueReceive (xQueue1,&ReceivedValue,pdMS_TO_TICKS (5000)) ) {
+		Count++;
+		DISPLAY("isrCount: %d \t Count: %d \t Received Value: %d",isrCount, Count, ReceivedValue);
+		}
+		else {
+		DISPLAY ("Please push the button to send message into the Queue") ;
+		}
+	}
+
 }
 
+
+
+void app_main(void) {
+
+	/* Create Message Queue and Check if created */
+	xQueue1 = xQueueCreate(5, sizeof(uint32_t ));
+
+ 	/* GPIO INPUT */
+  	gpio_config_t config_in;
+  	config_in.intr_type = GPIO_INTR_NEGEDGE;
+  	config_in.mode = GPIO_MODE_INPUT;
+  	config_in.pull_down_en = GPIO_PULLDOWN_DISABLE;
+  	config_in.pull_up_en = GPIO_PULLUP_ENABLE;
+  	config_in.pin_bit_mask = (1ULL << PIN_PUSH_BUTTON);
+  	gpio_config(&config_in);
+
+	if ( xQueue1 == NULL){
+	DISPLAY("Fail to create the Queue");
+	}
+	else{
+	DISPLAY ("Queue Created");
+	}
+
+		/* Install ISR */
+	gpio_install_isr_service(0);
+	gpio_isr_handler_add(PIN_PUSH_BUTTON, push_button_isr_handler, NULL);
+
+
+	/* Create vCounterTask task */
+	vTaskSuspendAll ();
+	xTaskCreatePinnedToCore(vCounterTask, "Counter Task", STACK_SIZE, (void*)"Counter Task", vCounterTask_PRIO,	NULL,CORE_0);
+	xTaskResumeAll ();				
+
+	/* to ensure its exit is clean */
+	vTaskDelete(NULL);
+}
