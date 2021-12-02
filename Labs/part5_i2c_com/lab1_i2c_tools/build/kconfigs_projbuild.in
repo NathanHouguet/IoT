@@ -1,0 +1,5 @@
+source "/home/houguet/esp/esp-idf/components/app_update/Kconfig.projbuild"
+source "/home/houguet/esp/esp-idf/components/bootloader/Kconfig.projbuild"
+source "/home/houguet/esp/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "/home/houguet/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+source "/home/houguet/esp/IoT/Labs/part5_i2c_com/lab1_i2c_tools/main/Kconfig.projbuild"
