@@ -1,0 +1,11 @@
+menu "WIFI CONNECT"
+
+config WIFI_SSID
+    string "SSID"
+    default "raspi-box-esp32"
+
+config WIFI_PASSWORD
+    string "PASSWORD"
+    default "???"  
+
+endmenu
